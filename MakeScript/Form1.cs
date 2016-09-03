@@ -12,13 +12,19 @@ namespace MakeScript
     {        
         private string currentFileName;
         private bool currentIsFileEdited;
+        private List<string> sourceFiles;
+        private List<string> sourceFilesExisting;
+        private string outputPathFile;
 
         public MainForm()
         {
             InitializeComponent();
+            recentsToolStripMenuItem1.UpdateList();
+            sourceFiles = new List<string>();
+            sourceFilesExisting = new List<string>();
         }
 
-        public void ParseFiles ()
+        public void ParseFiles()
         {
             MakeScriptParser msp = new MakeScriptParser(currentFileName);
             msp.Parse(textBoxMain.Text);
@@ -28,15 +34,30 @@ namespace MakeScript
             outputPathToolStripMenuItem.Text =  "OutputPath: " + msp.OutputPath;
             outputFileToolStripMenuItem.Text =  "OutputFile: " + msp.OutputFile;
 
+            sourceFiles = msp.Files;
+            sourceFilesExisting.Clear();
+            outputPathFile = msp.OutputPathFile;
+
             toolStripFiles.DropDownItems.Clear();
 
             if (msp.FilesCount > 0)
             {
                 for (int i = 0; i < msp.FilesCount; i++)
                 {
-                    toolStripFiles.DropDownItems.Add(msp.Files[i]);
+                    ToolStripMenuItem menuItem = new ToolStripMenuItem();
+                    menuItem.Text = msp.Files[i];
+
+                    if (File.Exists(msp.Files[i]))
+                    {
+                        sourceFilesExisting.Add(msp.Files[i]);
+                        menuItem.ForeColor = System.Drawing.Color.Black;
+                    }
+                    else
+                        menuItem.ForeColor = System.Drawing.Color.Red;
+
+                    toolStripFiles.DropDownItems.Add(menuItem);
                 }
-            }            
+            }
         }
 
         private string BuildTitle (string fileName, bool isFileEdited)
@@ -62,6 +83,17 @@ namespace MakeScript
             return title;
         }
 
+        private void OpenMakeScriptFile(string fileName)
+        {
+            textBoxMain.Text = File.ReadAllText(fileName);
+            textBoxMain.Select(0, 0);
+            saveToolStripMenuItem.Enabled = true;
+            currentFileName = fileName;
+            currentIsFileEdited = false;
+            Text = BuildTitle(currentFileName, currentIsFileEdited);
+            recentsToolStripMenuItem1.AddRecentItem(fileName);
+        }
+
         #region Events
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -70,12 +102,7 @@ namespace MakeScript
 
         private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
-            textBoxMain.Text = File.ReadAllText(openFileDialog1.FileName);
-            textBoxMain.Select(0, 0);
-            saveToolStripMenuItem.Enabled = true;
-            currentFileName = openFileDialog1.FileName;
-            currentIsFileEdited = false;
-            Text = BuildTitle(currentFileName, currentIsFileEdited);
+            OpenMakeScriptFile(openFileDialog1.FileName);
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -128,7 +155,30 @@ namespace MakeScript
                 currentIsFileEdited = true;
                 Text = BuildTitle(currentFileName, currentIsFileEdited);
             }
-        } 
+        }
+
+        private void buildScriptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult dr = DialogResult.Yes;
+
+            ParseFiles();
+
+            if (sourceFiles.Count != sourceFilesExisting.Count)
+            {
+                dr = MessageBox.Show("Not existing file(s) were detected, if you proceed they will be ommited in final scrip.\nDo you wish to procced?", "Warning - Not existing file(s)", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);                
+            }
+
+            if (dr == DialogResult.Yes)
+            {
+                MakeScriptBuilder builder = new MakeScriptBuilder(sourceFilesExisting, outputPathFile);
+                builder.Build();
+            }
+        }
+        private void recentsToolStripMenuItem1_ItemClick(object sender, EventArgs e)
+        {
+            ToolStripMenuItem fileClicked = (ToolStripMenuItem)sender;
+            OpenMakeScriptFile(fileClicked.Text);
+        }
         #endregion
     }
 }

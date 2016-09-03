@@ -10,7 +10,7 @@ namespace MakeScript
         private List<string> files;
         private Dictionary<string, string> parameters;
         private const string parametersPattern  = @"^\s*?(?<key>\w+?)\s*?=\s*?[""'](?<value>[\w:\.\\:\-\s]*)[""']\s*?$";
-        private const string filesPattern       = @"^\s*?(?<path>(?:\w:)??[\\/][\w\\/\s-]+?(?:\.\w+)??)\s*?$";
+        private const string filesPattern       = @"^\s*?(?<path>(?:\w:)??[\\/][\w\.\\/\s-]+?(?:\.\w+)??)\s*?$";
         private string scriptPath;
         private string startPath;
         private string outputFile;
@@ -72,7 +72,7 @@ namespace MakeScript
             if (p.ContainsKey("OutputFile"))
                 outputFile = p["OutputFile"];
             else
-                outputFile = Path.GetFileNameWithoutExtension(scriptPath) + outputFileExtension ?? outputFileExtensionDefaul;
+                outputFile = Path.GetFileNameWithoutExtension(scriptPath) + "_Script" + outputFileExtension ?? outputFileExtensionDefaul;
 
             if (p.ContainsKey("OutptPath"))
                 outputPath = p["OutptPath"];

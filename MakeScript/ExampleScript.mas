@@ -1,0 +1,24 @@
+# example file
+# Lines started with # will be treated as comment
+
+# StartPath (optional) - if ommited path will be taken from mas file
+# StartPath = "C:\Program Files\SVN\"  
+
+# OutputFile (optional) - if ommited output file will be named same as mas file with script extension
+# OutputFile = 'TestScript.sql' 
+
+# OutputPath (optional) - if ommited same as StartPath
+# OutptPath = "C:\"
+
+C:\SVN\file1.sql	
+# C:\SVN\file2.sql
+f:\Dropbox\SSMS Bak\sp_dp_help\dbo.sp_dp_help.sql
+C:/SVN/file4.sql
+ADD \SVN\file5.sql
+/SVN/file6.sql
+C:\Program Files\SVN\file7.sql	
+# C:\SVN\file8.sql
+ C:\Program Files\SVN\file_9.sql 
+C:/Program Files/SVN/file-10.sql
+\\Program Files\SVN\file11.sql
+/Program Files/SVN/file12
